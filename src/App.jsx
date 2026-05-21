@@ -8,7 +8,11 @@ const CreateDoc = lazy(() => import("./CreateDoc"));
 function App() {
   const [page, setPage] = useState("home");
 
-  const [shiftDate, setShiftDate] = useState("");
+  const [shiftDate, setShiftDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().slice(0, 10);
+  });
   const [shiftType, setShiftType] = useState("Morning");
 
   const [showModal, setShowModal] = useState(false);
@@ -38,6 +42,9 @@ function App() {
       .catch((err) => setWorkersError(err.message))
       .finally(() => setWorkersLoading(false));
   }, []);
+
+  const defaultHours = (type) =>
+    type === "Morning" ? { start: "11:00", finish: "17:00" } : { start: "17:00", finish: "23:00" };
 
   const saveWorker = () => {
     if (!selectedWorker || !startHour || !finishHour) {
@@ -194,10 +201,11 @@ function App() {
           <select
             value=""
             onChange={(e) => {
+              const d = defaultHours(shiftType);
               setSelectedWorker(e.target.value);
               setEditIndex(null);
-              setStartHour("");
-              setFinishHour("");
+              setStartHour(d.start);
+              setFinishHour(d.finish);
               setShowModal(true);
             }}
             style={styles.input}
