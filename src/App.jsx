@@ -178,29 +178,38 @@ function App() {
 
   if (page === "reports") {
     return (
-      <Reports
-        shiftReport={shiftReport}
-        onSave={handleSave}
-        saving={saving}
-        saved={saved}
-        onBack={() => setPage("home")}
-      />
+      <>
+        <Reports
+          shiftReport={shiftReport}
+          onSave={handleSave}
+          saving={saving}
+          saved={saved}
+          onBack={() => setPage("home")}
+        />
+        <SpeedInsights />
+      </>
     );
   }
 
   if (page === "createDoc") {
     return (
-      <Suspense fallback={null}>
-        <CreateDoc onBack={() => setPage("home")} workers={workers} workersLoading={workersLoading} />
-      </Suspense>
+      <>
+        <Suspense fallback={null}>
+          <CreateDoc onBack={() => setPage("home")} workers={workers} workersLoading={workersLoading} />
+        </Suspense>
+        <SpeedInsights />
+      </>
     );
   }
 
   if (page === "manageWorkers") {
     return (
-      <Suspense fallback={null}>
-        <ManageWorkers onBack={() => setPage("home")} workers={workers} setWorkers={setWorkers} />
-      </Suspense>
+      <>
+        <Suspense fallback={null}>
+          <ManageWorkers onBack={() => setPage("home")} workers={workers} setWorkers={setWorkers} />
+        </Suspense>
+        <SpeedInsights />
+      </>
     );
   }
 
@@ -380,6 +389,7 @@ function App() {
           </div>
         </div>
       )}
+      <SpeedInsights />
     </div>
   );
 }
