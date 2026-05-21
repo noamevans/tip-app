@@ -250,7 +250,6 @@ function App() {
                   setSelectedWorker(w.worker_id);
                   setStartHour(w.start);
                   setFinishHour(w.finish);
-                  setStrictPay(w.strict_pay != null ? String(w.strict_pay) : "");
                   setEditIndex(i);
                   setShowModal(true);
                 }}
