@@ -1,5 +1,5 @@
 const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
-const KEY  = import.meta.env.VITE_SUPABASE_ANON_KEY
+const KEY  = import.meta.env.VITE_PUBLICSUPABASE_ANON_KEY
 
 const h = () => ({
   'Content-Type': 'application/json',
