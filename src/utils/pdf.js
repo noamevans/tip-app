@@ -1,6 +1,8 @@
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 
+const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
+
 const TH = 'padding:12px;text-align:center;font-weight:600;'
 const TD = 'padding:10px;text-align:center;border-bottom:1px solid #e5e7eb;'
 const HEAD = 'background:#111827;color:white;'
@@ -46,7 +48,7 @@ async function toPdf(el, filename) {
 export async function downloadWorkerReportPdf(workerName, from, to, reportData) {
   const rows = reportData.rows.map((r, i) => `
     <tr style="background:${i % 2 === 0 ? '#fff' : '#f3f4f6'}">
-      <td style="${TD}">${r.shift_date}</td>
+      <td style="${TD}">${fmtDate(r.shift_date)}</td>
       <td style="${TD}">${r.hours.toFixed(2)}</td>
       <td style="${TD}">${r.rate.toFixed(2)}</td>
       <td style="${TD}">${r.total_paid.toFixed(2)}</td>
@@ -84,7 +86,7 @@ export async function downloadShiftReportPdf(shiftReport) {
     </tr>`).join('')
 
   const el = mount(`
-    <h2 style="font-size:20px;margin:0 0 6px;font-weight:700;">דוח משמרת — ${shiftReport.shift_date} (${period})</h2>
+    <h2 style="font-size:20px;margin:0 0 6px;font-weight:700;">דוח משמרת — ${fmtDate(shiftReport.shift_date)} (${period})</h2>
     <p style="color:#6b7280;margin:0 0 20px;font-size:13px;">סה"כ טיפים: ₪${shiftReport.total_tip_amount} &nbsp;&nbsp; סה"כ שעות: ${shiftReport.total_hours}</p>
     <table style="${TABLE}">
       <thead><tr style="${HEAD}">

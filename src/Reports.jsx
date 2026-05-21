@@ -1,5 +1,7 @@
 import { downloadShiftReportPdf } from "./utils/pdf";
 
+const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
+
 function Reports({ shiftReport, onBack, onSave, saving, saved }) {
   const { shift_date, period, total_tip_amount, total_hours, workers } = shiftReport;
   const hourlyRate = total_hours ? total_tip_amount / total_hours : 0;
@@ -11,7 +13,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
         {/* HEADER */}
         <div style={styles.header}>
           <h1 style={styles.title}>
-            {shift_date || "No Date"} — {period.charAt(0).toUpperCase() + period.slice(1)}
+            {shift_date ? fmtDate(shift_date) : "—"} — {period.charAt(0).toUpperCase() + period.slice(1)}
           </h1>
         </div>
 

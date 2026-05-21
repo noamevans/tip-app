@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { getWorkers, getWorkerReport } from "./api";
 import { downloadWorkerReportPdf } from "./utils/pdf";
 
+const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
+
 function CreateDoc({ onBack }) {
   const [worker, setWorker] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -103,7 +105,7 @@ function CreateDoc({ onBack }) {
                   <tbody>
                     {reportData.rows.map((row, i) => (
                       <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "#ffffff" : "#f3f4f6" }}>
-                        <td style={styles.td}>{row.shift_date}</td>
+                        <td style={styles.td}>{fmtDate(row.shift_date)}</td>
                         <td style={styles.td}>{row.hours.toFixed(2)}</td>
                         <td style={styles.td}>{row.rate.toFixed(2)}</td>
                         <td style={styles.td}>{row.total_paid.toFixed(2)}</td>
