@@ -5,8 +5,6 @@ import { getWorkers, getShifts, getShift, previewShift, createShift, updateShift
 const CreateDoc = lazy(() => import("./CreateDoc"));
 const ManageWorkers = lazy(() => import("./ManageWorkers"));
 
-const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7);
-const fmtPeriod = (p) => p === 'morning' ? 'בוקר' : 'ערב';
 const getYesterday = () => {
   const d = new Date();
   d.setDate(d.getDate() - 1);
@@ -55,32 +53,31 @@ function App() {
   const defaultHours = (type) =>
     type === "Morning" ? { start: "11:00", finish: "17:00" } : { start: "17:00", finish: "23:00" };
 
-  const handleLoadShift = async (shift) => {
-    try {
-      const detail = await getShift(shift.id);
-      setEditingShiftId(shift.id);
-      setShiftDate(detail.shift_date);
-      setShiftType(detail.period === 'morning' ? 'Morning' : 'Evening');
-      setTipAmount(String(detail.total_tip_amount));
-      setWorkersList(detail.workers.map((w) => ({
-        worker_id: w.worker_id,
-        name: w.full_name,
-        start: w.check_in,
-        finish: w.check_out,
-        strict_pay: workers.find((wr) => wr.id === w.worker_id)?.strict_pay ?? null,
-      })));
-    } catch (err) {
-      alert(err.message);
+  useEffect(() => {
+    if (!shiftDate || shifts.length === 0) return;
+    const match = shifts.find(
+      (s) => s.shift_date === shiftDate && s.period === shiftType.toLowerCase()
+    );
+    if (match) {
+      getShift(match.id)
+        .then((detail) => {
+          setEditingShiftId(match.id);
+          setTipAmount(String(detail.total_tip_amount));
+          setWorkersList(detail.workers.map((w) => ({
+            worker_id: w.worker_id,
+            name: w.full_name,
+            start: w.check_in,
+            finish: w.check_out,
+            strict_pay: workers.find((wr) => wr.id === w.worker_id)?.strict_pay ?? null,
+          })));
+        })
+        .catch(() => {});
+    } else {
+      setEditingShiftId(null);
+      setWorkersList([]);
+      setTipAmount("");
     }
-  };
-
-  const handleClearEdit = () => {
-    setEditingShiftId(null);
-    setShiftDate(getYesterday());
-    setShiftType("Morning");
-    setWorkersList([]);
-    setTipAmount("");
-  };
+  }, [shiftDate, shiftType, shifts]);
 
   const saveWorker = () => {
     if (!selectedWorker || !startHour || !finishHour) {
@@ -229,31 +226,6 @@ function App() {
             </button>
           </div>
         </div>
-
-        {/* RECENT SHIFTS */}
-        {shifts.length > 0 && (
-          <div style={styles.recentSection}>
-            <div style={styles.recentScroll}>
-              {editingShiftId && (
-                <div style={styles.newChip} onClick={handleClearEdit}>
-                  + חדש
-                </div>
-              )}
-              {shifts.map((s) => (
-                <div
-                  key={s.id}
-                  style={{
-                    ...styles.recentChip,
-                    ...(editingShiftId === s.id ? styles.recentChipActive : {}),
-                  }}
-                  onClick={() => handleLoadShift(s)}
-                >
-                  {fmtDate(s.shift_date)} {fmtPeriod(s.period)}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* SHIFT */}
         <div style={styles.section}>
@@ -456,44 +428,6 @@ const styles = {
     backgroundColor: "#111827",
     color: "white",
     cursor: "pointer",
-  },
-
-  recentSection: {
-    marginBottom: "20px",
-  },
-
-  recentScroll: {
-    display: "flex",
-    gap: "8px",
-    overflowX: "auto",
-    paddingBottom: "4px",
-  },
-
-  recentChip: {
-    flexShrink: 0,
-    padding: "6px 12px",
-    borderRadius: "999px",
-    backgroundColor: "#e5e7eb",
-    fontSize: "13px",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-  },
-
-  recentChipActive: {
-    backgroundColor: "#111827",
-    color: "white",
-  },
-
-  newChip: {
-    flexShrink: 0,
-    padding: "6px 12px",
-    borderRadius: "999px",
-    backgroundColor: "#d1fae5",
-    color: "#065f46",
-    fontSize: "13px",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-    fontWeight: "600",
   },
 
   section: { marginBottom: "25px" },
