@@ -38,6 +38,21 @@ export async function getWorkerReport(workerId, from, to) {
   return res.json()
 }
 
+export async function createWorker(fullName) {
+  const res = await fetch(`${BASE}/workers`, {
+    method: 'POST',
+    headers: h(),
+    body: JSON.stringify({ full_name: fullName }),
+  })
+  if (!res.ok) throw new Error('שגיאה בהוספת עובד')
+  return res.json()
+}
+
+export async function deleteWorker(id) {
+  const res = await fetch(`${BASE}/workers/${id}`, { method: 'DELETE', headers: h() })
+  if (!res.ok) throw new Error('שגיאה במחיקת עובד')
+}
+
 export async function createShift(body) {
   const res = await fetch(`${BASE}/shifts`, {
     method: 'POST',

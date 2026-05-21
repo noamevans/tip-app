@@ -3,6 +3,7 @@ import Reports from "./Reports";
 import { getWorkers, previewShift, createShift } from "./api";
 
 const CreateDoc = lazy(() => import("./CreateDoc"));
+const ManageWorkers = lazy(() => import("./ManageWorkers"));
 
 
 function App() {
@@ -149,6 +150,14 @@ function App() {
     );
   }
 
+  if (page === "manageWorkers") {
+    return (
+      <Suspense fallback={null}>
+        <ManageWorkers onBack={() => setPage("home")} workers={workers} setWorkers={setWorkers} />
+      </Suspense>
+    );
+  }
+
   return (
     <div style={styles.page}>
       <div style={styles.card}>
@@ -157,12 +166,20 @@ function App() {
         <div style={styles.header}>
           <h1 style={styles.title}>מחשב טיפים</h1>
 
-          <button
-            style={styles.reportsButton}
-            onClick={() => setPage("createDoc")}
-          >
-            דוח לענת
-          </button>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button
+              style={styles.reportsButton}
+              onClick={() => setPage("manageWorkers")}
+            >
+              עובדים
+            </button>
+            <button
+              style={styles.reportsButton}
+              onClick={() => setPage("createDoc")}
+            >
+              דוח לענת
+            </button>
+          </div>
         </div>
 
         {/* SHIFT */}
