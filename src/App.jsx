@@ -3,9 +3,6 @@ import Reports from "./Reports";
 import CreateDoc from "./CreateDoc";
 import { getWorkers, previewShift, createShift } from "./api";
 
-import TimePicker from "react-time-picker";
-import "react-time-picker/dist/TimePicker.css";
-import "react-clock/dist/Clock.css";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -257,24 +254,20 @@ function App() {
             </h2>
 
             <label style={styles.label}>כניסה</label>
-            <div style={styles.timePicker}>
-              <TimePicker
-                onChange={setStartHour}
-                value={startHour}
-                format="HH:mm"
-                disableClock={true}
-              />
-            </div>
+            <input
+              type="time"
+              value={startHour}
+              onChange={(e) => setStartHour(e.target.value)}
+              style={styles.input}
+            />
 
             <label style={styles.label}>יציאה</label>
-            <div style={styles.timePicker}>
-              <TimePicker
-                onChange={setFinishHour}
-                value={finishHour}
-                format="HH:mm"
-                disableClock={true}
-              />
-            </div>
+            <input
+              type="time"
+              value={finishHour}
+              onChange={(e) => setFinishHour(e.target.value)}
+              style={styles.input}
+            />
 
             <button style={styles.button} onClick={saveWorker}>
               שמור
@@ -452,9 +445,6 @@ const styles = {
     cursor: "pointer",
   },
 
-  timePicker: {
-    marginBottom: "10px",
-  },
 };
 
 export default App;
