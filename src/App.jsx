@@ -141,13 +141,13 @@ function App() {
 
         {/* HEADER */}
         <div style={styles.header}>
-          <h1 style={styles.title}>TipApp</h1>
+          <h1 style={styles.title}>מחשב טיפים</h1>
 
           <button
             style={styles.reportsButton}
             onClick={() => setPage("createDoc")}
           >
-            צור דוח
+            דוח לענת
           </button>
         </div>
 
@@ -335,7 +335,7 @@ const styles = {
     width: "100%",
     maxWidth: "450px",
     backgroundColor: "white",
-    padding: "30px",
+    padding: "clamp(16px, 5vw, 30px)",
     borderRadius: "16px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
     textAlign: "left",
@@ -353,7 +353,8 @@ const styles = {
   },
 
   reportsButton: {
-    padding: "8px 12px",
+    padding: "10px 14px",
+    minHeight: "44px",
     borderRadius: "8px",
     border: "1px solid #ddd",
     backgroundColor: "white",
@@ -393,10 +394,10 @@ const styles = {
   },
 
   chip: {
-    padding: "6px 12px",
+    padding: "8px 14px",
     borderRadius: "999px",
     cursor: "pointer",
-    fontSize: "13px",
+    fontSize: "14px",
     fontWeight: "600",
   },
 
@@ -424,9 +425,9 @@ const styles = {
 
   modal: {
     backgroundColor: "white",
-    padding: "20px",
+    padding: "16px",
     borderRadius: "12px",
-    width: "90%",
+    width: "92%",
     maxWidth: "400px",
   },
 

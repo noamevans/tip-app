@@ -29,6 +29,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
         </div>
 
         {/* TABLE */}
+        <div style={{ overflowX: "auto" }}>
         <table style={styles.table}>
           <thead>
             <tr>
@@ -57,6 +58,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
             ))}
           </tbody>
         </table>
+        </div>
 
         {/* ACTIONS */}
         <div style={styles.actions}>
@@ -102,7 +104,7 @@ const styles = {
     width: "100%",
     maxWidth: "800px",
     backgroundColor: "white",
-    padding: "30px",
+    padding: "clamp(16px, 5vw, 30px)",
     borderRadius: "16px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
   },
@@ -147,26 +149,30 @@ const styles = {
   },
 
   th: {
-    padding: "12px",
+    padding: "clamp(8px, 2vw, 12px)",
     backgroundColor: "#111827",
     color: "white",
     fontSize: "14px",
+    whiteSpace: "nowrap",
   },
 
   td: {
-    padding: "12px",
+    padding: "clamp(8px, 2vw, 12px)",
     borderBottom: "1px solid #e5e7eb",
     textAlign: "center",
+    whiteSpace: "nowrap",
   },
 
   actions: {
     display: "flex",
-    gap: "12px",
+    flexWrap: "wrap",
+    gap: "10px",
     marginTop: "24px",
   },
 
   editButton: {
-    flex: 1,
+    flex: "1 1 100px",
+    minWidth: "100px",
     padding: "14px",
     borderRadius: "10px",
     border: "1px solid #ddd",
@@ -176,7 +182,8 @@ const styles = {
   },
 
   pdfButton: {
-    flex: 1,
+    flex: "1 1 100px",
+    minWidth: "100px",
     padding: "14px",
     borderRadius: "10px",
     border: "1px solid #111827",
@@ -187,7 +194,8 @@ const styles = {
   },
 
   saveButton: {
-    flex: 1,
+    flex: "1 1 100px",
+    minWidth: "100px",
     padding: "14px",
     borderRadius: "10px",
     border: "none",

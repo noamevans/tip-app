@@ -44,7 +44,7 @@ function CreateDoc({ onBack }) {
 
   return (
     <div style={styles.page}>
-      <div style={{ ...styles.card, maxWidth: hasRows ? "700px" : "450px" }}>
+      <div style={styles.card}>
 
         <div style={styles.header}>
           <h1 style={styles.title}>דוח חודשי</h1>
@@ -90,6 +90,7 @@ function CreateDoc({ onBack }) {
               <p style={styles.empty}>לא נמצאו משמרות עבור עובד זה בטווח התאריכים שנבחר.</p>
             ) : (
               <>
+                <div style={{ overflowX: "auto" }}>
                 <table style={styles.table}>
                   <thead>
                     <tr>
@@ -117,6 +118,7 @@ function CreateDoc({ onBack }) {
                     </tr>
                   </tfoot>
                 </table>
+                </div>
                 <button
                   style={styles.button}
                   onClick={() => {
@@ -149,8 +151,9 @@ const styles = {
 
   card: {
     width: "100%",
+    maxWidth: "700px",
     backgroundColor: "white",
-    padding: "30px",
+    padding: "clamp(16px, 5vw, 30px)",
     borderRadius: "16px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
     marginTop: "20px",
@@ -220,17 +223,19 @@ const styles = {
   },
 
   th: {
-    padding: "12px",
+    padding: "clamp(8px, 2vw, 12px)",
     backgroundColor: "#111827",
     color: "white",
     fontSize: "14px",
     textAlign: "center",
+    whiteSpace: "nowrap",
   },
 
   td: {
-    padding: "12px",
+    padding: "clamp(8px, 2vw, 12px)",
     borderBottom: "1px solid #e5e7eb",
     textAlign: "center",
+    whiteSpace: "nowrap",
   },
 
   tfoot: {
