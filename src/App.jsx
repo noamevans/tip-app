@@ -88,6 +88,7 @@ function App() {
         check_in: w.start,
         check_out: w.finish,
         strict_pay: w.strict_pay ?? null,
+        full_name: w.name,
       })),
     };
     setPreviewing(true);
