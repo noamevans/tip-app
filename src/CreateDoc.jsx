@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getWorkers, getWorkerReport } from "./api";
+import { downloadWorkerReportPdf } from "./utils/pdf";
 
 function CreateDoc({ onBack }) {
   const [worker, setWorker] = useState("");
@@ -20,11 +21,11 @@ function CreateDoc({ onBack }) {
 
   const handleGenerate = async () => {
     if (!worker || !fromDate || !untilDate) {
-      alert("Please fill all fields");
+      alert("נא למלא את כל השדות");
       return;
     }
     if (new Date(fromDate) > new Date(untilDate)) {
-      alert("From date cannot be after until date");
+      alert("תאריך ההתחלה לא יכול להיות אחרי תאריך הסיום");
       return;
     }
     setLoading(true);
@@ -46,24 +47,24 @@ function CreateDoc({ onBack }) {
       <div style={{ ...styles.card, maxWidth: hasRows ? "700px" : "450px" }}>
 
         <div style={styles.header}>
-          <h1 style={styles.title}>Monthly Report</h1>
-          <button onClick={onBack} style={styles.backButton}>← Back</button>
+          <h1 style={styles.title}>דוח חודשי</h1>
+          <button onClick={onBack} style={styles.backButton}>חזור →</button>
         </div>
 
-        <label style={styles.label}>Worker:</label>
+        <label style={styles.label}>עובד:</label>
         <select
           value={worker}
           onChange={(e) => setWorker(e.target.value)}
           style={styles.input}
           disabled={workersLoading}
         >
-          <option value="">{workersLoading ? "Loading…" : "Select worker"}</option>
+          <option value="">{workersLoading ? "טוען…" : "בחר עובד"}</option>
           {workers.map((w) => (
             <option key={w.id} value={w.id}>{w.full_name}</option>
           ))}
         </select>
 
-        <label style={styles.label}>From:</label>
+        <label style={styles.label}>מתאריך:</label>
         <input
           type="date"
           value={fromDate}
@@ -71,7 +72,7 @@ function CreateDoc({ onBack }) {
           style={styles.input}
         />
 
-        <label style={styles.label}>Until:</label>
+        <label style={styles.label}>עד תאריך:</label>
         <input
           type="date"
           value={untilDate}
@@ -80,41 +81,52 @@ function CreateDoc({ onBack }) {
         />
 
         <button onClick={handleGenerate} style={styles.button} disabled={loading}>
-          {loading ? "Generating…" : "Generate Report"}
+          {loading ? "יוצר…" : "צור דוח"}
         </button>
 
         {reportData && (
           <div style={styles.results}>
             {reportData.rows.length === 0 ? (
-              <p style={styles.empty}>No shifts found for this worker in the selected range.</p>
+              <p style={styles.empty}>לא נמצאו משמרות עבור עובד זה בטווח התאריכים שנבחר.</p>
             ) : (
-              <table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>Date</th>
-                    <th style={styles.th}>Hours</th>
-                    <th style={styles.th}>Rate</th>
-                    <th style={styles.th}>Total Paid</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reportData.rows.map((row, i) => (
-                    <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "#ffffff" : "#f3f4f6" }}>
-                      <td style={styles.td}>{row.shift_date}</td>
-                      <td style={styles.td}>{row.hours.toFixed(2)}</td>
-                      <td style={styles.td}>{row.rate.toFixed(2)}</td>
-                      <td style={styles.td}>{row.total_paid.toFixed(2)}</td>
+              <>
+                <table style={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={styles.th}>תאריך</th>
+                      <th style={styles.th}>שעות</th>
+                      <th style={styles.th}>תעריף</th>
+                      <th style={styles.th}>סה"כ שולם</th>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr style={{ backgroundColor: "#111827", color: "white" }}>
-                    <td style={styles.tfoot} colSpan={2}>Total</td>
-                    <td style={styles.tfoot}></td>
-                    <td style={styles.tfoot}>{reportData.total_paid.toFixed(2)}</td>
-                  </tr>
-                </tfoot>
-              </table>
+                  </thead>
+                  <tbody>
+                    {reportData.rows.map((row, i) => (
+                      <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "#ffffff" : "#f3f4f6" }}>
+                        <td style={styles.td}>{row.shift_date}</td>
+                        <td style={styles.td}>{row.hours.toFixed(2)}</td>
+                        <td style={styles.td}>{row.rate.toFixed(2)}</td>
+                        <td style={styles.td}>{row.total_paid.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ backgroundColor: "#111827", color: "white" }}>
+                      <td style={styles.tfoot} colSpan={2}>סה"כ</td>
+                      <td style={styles.tfoot}></td>
+                      <td style={styles.tfoot}>{reportData.total_paid.toFixed(2)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+                <button
+                  style={styles.button}
+                  onClick={() => {
+                    const workerName = workers.find((w) => w.id === worker)?.full_name ?? worker;
+                    downloadWorkerReportPdf(workerName, fromDate, untilDate, reportData);
+                  }}
+                >
+                  הורד PDF
+                </button>
+              </>
             )}
           </div>
         )}

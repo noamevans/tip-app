@@ -42,7 +42,7 @@ function App() {
 
   const saveWorker = () => {
     if (!selectedWorker || !startHour || !finishHour) {
-      alert("Please fill all fields");
+      alert("נא למלא את כל השדות");
       return;
     }
 
@@ -71,11 +71,11 @@ function App() {
 
   const handlePreview = async () => {
     if (!tipAmount || workersList.length === 0) {
-      alert("Add workers and tip first");
+      alert("יש להוסיף עובדים וסכום טיפ תחילה");
       return;
     }
     if (!shiftDate) {
-      alert("Please select a date");
+      alert("נא לבחור תאריך");
       return;
     }
     const body = {
@@ -111,8 +111,7 @@ function App() {
       setWorkersList([]);
       setTipAmount("");
       setShiftBody(null);
-      setShiftReport(null);
-      setPage("home");
+      setSaved(true);
     } catch (err) {
       alert(err.message);
     } finally {
@@ -148,27 +147,27 @@ function App() {
             style={styles.reportsButton}
             onClick={() => setPage("createDoc")}
           >
-            Create Doc
+            צור דוח
           </button>
         </div>
 
         {/* SHIFT */}
         <div style={styles.section}>
-          <label style={styles.label}>Date:</label>
+          <label style={styles.label}>תאריך:</label>
 
           <div style={styles.chipContainer}>
-            {["Morning", "Evening"].map((type) => (
+            {[{ value: "Morning", label: "בוקר" }, { value: "Evening", label: "ערב" }].map(({ value, label }) => (
               <div
-                key={type}
-                onClick={() => setShiftType(type)}
+                key={value}
+                onClick={() => setShiftType(value)}
                 style={{
                   ...styles.chip,
                   backgroundColor:
-                    shiftType === type ? "#111827" : "#e5e7eb",
-                  color: shiftType === type ? "white" : "black",
+                    shiftType === value ? "#111827" : "#e5e7eb",
+                  color: shiftType === value ? "white" : "black",
                 }}
               >
-                {type}
+                {label}
               </div>
             ))}
           </div>
@@ -183,7 +182,7 @@ function App() {
 
         {/* WORKERS */}
         <div style={styles.section}>
-          <label style={styles.label}>Staff:</label>
+          <label style={styles.label}>צוות:</label>
 
           <select
             value=""
@@ -198,7 +197,7 @@ function App() {
             disabled={workersLoading}
           >
             <option value="">
-              {workersLoading ? "Loading…" : workersError ? "Error loading workers" : "Select Employee"}
+              {workersLoading ? "טוען…" : workersError ? "שגיאה בטעינת עובדים" : "בחר עובד"}
             </option>
 
             {workers
@@ -233,7 +232,7 @@ function App() {
 
         {/* TIPS */}
         <div style={styles.section}>
-          <label style={styles.label}>Total Tips:</label>
+          <label style={styles.label}>סה"כ טיפים:</label>
 
           <input
             type="number"
@@ -244,7 +243,7 @@ function App() {
         </div>
 
         <button style={styles.button} onClick={handlePreview} disabled={previewing}>
-          {previewing ? "Calculating…" : "Calculate Tips"}
+          {previewing ? "מחשב…" : "חשב טיפים"}
         </button>
       </div>
 
@@ -254,10 +253,10 @@ function App() {
           <div style={styles.modal}>
 
             <h2>
-              {editIndex !== null ? "Edit Worker" : "Add Worker"}
+              {editIndex !== null ? "ערוך עובד" : "הוסף עובד"}
             </h2>
 
-            <label style={styles.label}>Start</label>
+            <label style={styles.label}>כניסה</label>
             <div style={styles.timePicker}>
               <TimePicker
                 onChange={setStartHour}
@@ -267,7 +266,7 @@ function App() {
               />
             </div>
 
-            <label style={styles.label}>Finish</label>
+            <label style={styles.label}>יציאה</label>
             <div style={styles.timePicker}>
               <TimePicker
                 onChange={setFinishHour}
@@ -278,7 +277,7 @@ function App() {
             </div>
 
             <button style={styles.button} onClick={saveWorker}>
-              Save
+              שמור
             </button>
 
             {editIndex !== null && (
@@ -297,7 +296,7 @@ function App() {
                   setFinishHour("");
                 }}
               >
-                Delete Worker
+                מחק עובד
               </button>
             )}
 
@@ -311,7 +310,7 @@ function App() {
                 setFinishHour("");
               }}
             >
-              Cancel
+              ביטול
             </button>
           </div>
         </div>

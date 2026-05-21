@@ -9,7 +9,7 @@ const h = () => ({
 
 export async function getWorkers() {
   const res = await fetch(`${BASE}/workers`, { headers: h() })
-  if (!res.ok) throw new Error('Failed to fetch workers')
+  if (!res.ok) throw new Error('שגיאה בטעינת עובדים')
   return res.json()
 }
 
@@ -21,7 +21,7 @@ export async function previewShift(body) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.error ?? 'Failed to preview shift')
+    throw new Error(err.error ?? 'שגיאה בתצוגה מקדימה של המשמרת')
   }
   return res.json()
 }
@@ -33,7 +33,7 @@ export async function getWorkerReport(workerId, from, to) {
   const res = await fetch(`${BASE}/shifts/report?${params}`, { headers: h() })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.error ?? 'Failed to fetch report')
+    throw new Error(err.error ?? 'שגיאה בטעינת הדוח')
   }
   return res.json()
 }
@@ -46,7 +46,7 @@ export async function createShift(body) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.error ?? 'Failed to save shift')
+    throw new Error(err.error ?? 'שגיאה בשמירת המשמרת')
   }
   return res.json()
 }

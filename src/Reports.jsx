@@ -1,3 +1,5 @@
+import { downloadShiftReportPdf } from "./utils/pdf";
+
 function Reports({ shiftReport, onBack, onSave, saving, saved }) {
   const { shift_date, period, total_tip_amount, total_hours, workers } = shiftReport;
   const hourlyRate = total_hours ? total_tip_amount / total_hours : 0;
@@ -16,12 +18,12 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
         {/* SUMMARY */}
         <div style={styles.summary}>
           <div style={styles.summaryBox}>
-            <h2>Total Hours</h2>
+            <h2>סה"כ שעות</h2>
             <p>{total_hours.toFixed(2)}</p>
           </div>
 
           <div style={styles.summaryBox}>
-            <h2>Hourly Rate</h2>
+            <h2>תעריף לשעה</h2>
             <p>{hourlyRate.toFixed(2)}</p>
           </div>
         </div>
@@ -30,11 +32,11 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>Name</th>
-              <th style={styles.th}>Start</th>
-              <th style={styles.th}>End</th>
-              <th style={styles.th}>Hours</th>
-              <th style={styles.th}>Earnings</th>
+              <th style={styles.th}>שם</th>
+              <th style={styles.th}>כניסה</th>
+              <th style={styles.th}>יציאה</th>
+              <th style={styles.th}>שעות</th>
+              <th style={styles.th}>רווח</th>
             </tr>
           </thead>
 
@@ -59,7 +61,14 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
         {/* ACTIONS */}
         <div style={styles.actions}>
           <button onClick={onBack} style={styles.editButton}>
-            ← Edit
+            ערוך →
+          </button>
+
+          <button
+            onClick={() => downloadShiftReportPdf(shiftReport)}
+            style={styles.pdfButton}
+          >
+            הורד PDF
           </button>
 
           <button
@@ -67,7 +76,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
             style={styles.saveButton}
             disabled={saving || saved}
           >
-            {saved ? "Saved ✓" : saving ? "Saving…" : "Save Shift"}
+            {saved ? "נשמר ✓" : saving ? "שומר…" : "שמור משמרת"}
           </button>
         </div>
 
@@ -162,6 +171,17 @@ const styles = {
     borderRadius: "10px",
     border: "1px solid #ddd",
     backgroundColor: "white",
+    cursor: "pointer",
+    fontSize: "15px",
+  },
+
+  pdfButton: {
+    flex: 1,
+    padding: "14px",
+    borderRadius: "10px",
+    border: "1px solid #111827",
+    backgroundColor: "white",
+    color: "#111827",
     cursor: "pointer",
     fontSize: "15px",
   },

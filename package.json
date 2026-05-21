@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/heebo": "^5.2.8",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "react": "^19.2.6",
     "react-clock": "^6.0.0",
     "react-dom": "^19.2.6",
