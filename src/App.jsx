@@ -348,8 +348,9 @@ const styles = {
     padding: "10px 14px",
     minHeight: "44px",
     borderRadius: "8px",
-    border: "1px solid #ddd",
-    backgroundColor: "white",
+    border: "none",
+    backgroundColor: "#111827",
+    color: "white",
     cursor: "pointer",
   },
 
