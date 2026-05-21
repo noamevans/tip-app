@@ -15,6 +15,7 @@ function App() {
   const [selectedWorker, setSelectedWorker] = useState("");
   const [startHour, setStartHour] = useState("");
   const [finishHour, setFinishHour] = useState("");
+  const [strictPay, setStrictPay] = useState("");
 
   const [workersList, setWorkersList] = useState([]);
   const [tipAmount, setTipAmount] = useState("");
@@ -49,6 +50,7 @@ function App() {
       name: workerObj?.full_name ?? selectedWorker,
       start: startHour,
       finish: finishHour,
+      strict_pay: strictPay !== "" ? Number(strictPay) : null,
     };
 
     if (editIndex !== null) {
@@ -63,6 +65,7 @@ function App() {
     setSelectedWorker("");
     setStartHour("");
     setFinishHour("");
+    setStrictPay("");
     setShowModal(false);
   };
 
@@ -83,6 +86,7 @@ function App() {
         worker_id: w.worker_id,
         check_in: w.start,
         check_out: w.finish,
+        strict_pay: w.strict_pay ?? null,
       })),
     };
     setPreviewing(true);
@@ -217,11 +221,12 @@ function App() {
                   setSelectedWorker(w.worker_id);
                   setStartHour(w.start);
                   setFinishHour(w.finish);
+                  setStrictPay(w.strict_pay != null ? String(w.strict_pay) : "");
                   setEditIndex(i);
                   setShowModal(true);
                 }}
               >
-                {w.name}
+                {w.name}{w.strict_pay != null ? ` (₪${w.strict_pay})` : ""}
               </div>
             ))}
           </div>
@@ -269,6 +274,15 @@ function App() {
               style={styles.input}
             />
 
+            <label style={styles.label}>תשלום קבוע ₪ (אופציונלי)</label>
+            <input
+              type="number"
+              value={strictPay}
+              onChange={(e) => setStrictPay(e.target.value)}
+              style={styles.input}
+              placeholder="השאר ריק לחלוקה יחסית"
+            />
+
             <button style={styles.button} onClick={saveWorker}>
               שמור
             </button>
@@ -287,6 +301,7 @@ function App() {
                   setSelectedWorker("");
                   setStartHour("");
                   setFinishHour("");
+                  setStrictPay("");
                 }}
               >
                 מחק עובד
@@ -301,6 +316,7 @@ function App() {
                 setSelectedWorker("");
                 setStartHour("");
                 setFinishHour("");
+                setStrictPay("");
               }}
             >
               ביטול
