@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import Reports from "./Reports";
 import { getWorkers, getShifts, getShift, previewShift, createShift, updateShift } from "./api";
 
