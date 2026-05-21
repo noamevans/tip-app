@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Reports from "./Reports";
 import CreateDoc from "./CreateDoc";
+import { getWorkers, previewShift, createShift } from "./api";
 
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
@@ -22,8 +23,22 @@ function App() {
   const [tipAmount, setTipAmount] = useState("");
 
   const [editIndex, setEditIndex] = useState(null);
+  const [shiftReport, setShiftReport] = useState(null);
+  const [shiftBody, setShiftBody] = useState(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  const workers = ["Daniel", "Noa", "Yossi", "Maya", "Omer"];
+  const [workers, setWorkers] = useState([]);
+  const [workersLoading, setWorkersLoading] = useState(true);
+  const [workersError, setWorkersError] = useState(null);
+
+  useEffect(() => {
+    getWorkers()
+      .then(setWorkers)
+      .catch((err) => setWorkersError(err.message))
+      .finally(() => setWorkersLoading(false));
+  }, []);
 
   const saveWorker = () => {
     if (!selectedWorker || !startHour || !finishHour) {
@@ -31,8 +46,10 @@ function App() {
       return;
     }
 
+    const workerObj = workers.find((w) => w.id === selectedWorker);
     const worker = {
-      name: selectedWorker,
+      worker_id: selectedWorker,
+      name: workerObj?.full_name ?? selectedWorker,
       start: startHour,
       finish: finishHour,
     };
@@ -52,21 +69,64 @@ function App() {
     setShowModal(false);
   };
 
-  const goToReports = () => {
+  const handlePreview = async () => {
     if (!tipAmount || workersList.length === 0) {
       alert("Add workers and tip first");
       return;
     }
-    setPage("reports");
+    if (!shiftDate) {
+      alert("Please select a date");
+      return;
+    }
+    const body = {
+      shift_date: shiftDate,
+      period: shiftType.toLowerCase(),
+      total_tip_amount: Number(tipAmount),
+      workers: workersList.map((w) => ({
+        worker_id: w.worker_id,
+        check_in: w.start,
+        check_out: w.finish,
+      })),
+    };
+    setPreviewing(true);
+    try {
+      const report = await previewShift(body);
+      setShiftBody(body);
+      setShiftReport(report);
+      setSaved(false);
+      setPage("reports");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setPreviewing(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await createShift(shiftBody);
+      setShiftDate("");
+      setShiftType("Morning");
+      setWorkersList([]);
+      setTipAmount("");
+      setShiftBody(null);
+      setShiftReport(null);
+      setPage("home");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (page === "reports") {
     return (
       <Reports
-        shiftDate={shiftDate}
-        shiftType={shiftType}
-        workersList={workersList}
-        tipAmount={Number(tipAmount)}
+        shiftReport={shiftReport}
+        onSave={handleSave}
+        saving={saving}
+        saved={saved}
         onBack={() => setPage("home")}
       />
     );
@@ -135,16 +195,19 @@ function App() {
               setShowModal(true);
             }}
             style={styles.input}
+            disabled={workersLoading}
           >
-            <option value="">Select Employee</option>
+            <option value="">
+              {workersLoading ? "Loading…" : workersError ? "Error loading workers" : "Select Employee"}
+            </option>
 
             {workers
               .filter((worker) =>
-                !workersList.some((w) => w.name === worker)
+                !workersList.some((w) => w.worker_id === worker.id)
               )
               .map((w) => (
-                <option key={w} value={w}>
-                  {w}
+                <option key={w.id} value={w.id}>
+                  {w.full_name}
                 </option>
               ))}
           </select>
@@ -155,7 +218,7 @@ function App() {
                 key={i}
                 style={styles.tag}
                 onClick={() => {
-                  setSelectedWorker(w.name);
+                  setSelectedWorker(w.worker_id);
                   setStartHour(w.start);
                   setFinishHour(w.finish);
                   setEditIndex(i);
@@ -180,8 +243,8 @@ function App() {
           />
         </div>
 
-        <button style={styles.button} onClick={goToReports}>
-          Calculate Tips
+        <button style={styles.button} onClick={handlePreview} disabled={previewing}>
+          {previewing ? "Calculating…" : "Calculate Tips"}
         </button>
       </div>
 

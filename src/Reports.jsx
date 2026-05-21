@@ -1,24 +1,6 @@
-function Reports({ shiftDate, shiftType, workersList, tipAmount, onBack }) {
-  const getHours = (start, end) => {
-    const [sh, sm] = start.split(":").map(Number);
-    const [eh, em] = end.split(":").map(Number);
-    return (eh + em / 60) - (sh + sm / 60);
-  };
-
-  const totalHours = workersList.reduce((sum, w) => {
-    return sum + getHours(w.start, w.finish);
-  }, 0);
-
-  const hourlyRate = totalHours ? Number(tipAmount) / totalHours : 0;
-
-  const enriched = workersList.map((w) => {
-    const hours = getHours(w.start, w.finish);
-    return {
-      ...w,
-      hours,
-      earned: hours * hourlyRate,
-    };
-  });
+function Reports({ shiftReport, onBack, onSave, saving, saved }) {
+  const { shift_date, period, total_tip_amount, total_hours, workers } = shiftReport;
+  const hourlyRate = total_hours ? total_tip_amount / total_hours : 0;
 
   return (
     <div style={styles.page}>
@@ -27,19 +9,15 @@ function Reports({ shiftDate, shiftType, workersList, tipAmount, onBack }) {
         {/* HEADER */}
         <div style={styles.header}>
           <h1 style={styles.title}>
-            {shiftDate || "No Date"} — {shiftType}
+            {shift_date || "No Date"} — {period.charAt(0).toUpperCase() + period.slice(1)}
           </h1>
-
-          <button onClick={onBack} style={styles.backButton}>
-            Back
-          </button>
         </div>
 
         {/* SUMMARY */}
         <div style={styles.summary}>
           <div style={styles.summaryBox}>
             <h2>Total Hours</h2>
-            <p>{totalHours.toFixed(2)}</p>
+            <p>{total_hours.toFixed(2)}</p>
           </div>
 
           <div style={styles.summaryBox}>
@@ -61,22 +39,37 @@ function Reports({ shiftDate, shiftType, workersList, tipAmount, onBack }) {
           </thead>
 
           <tbody>
-            {enriched.map((w, i) => (
+            {workers.map((w, i) => (
               <tr
-                key={i}
+                key={w.worker_id}
                 style={{
                   backgroundColor: i % 2 === 0 ? "#ffffff" : "#f3f4f6",
                 }}
               >
-                <td style={styles.td}>{w.name}</td>
-                <td style={styles.td}>{w.start}</td>
-                <td style={styles.td}>{w.finish}</td>
-                <td style={styles.td}>{w.hours.toFixed(2)}</td>
-                <td style={styles.td}>{w.earned.toFixed(2)}</td>
+                <td style={styles.td}>{w.full_name}</td>
+                <td style={styles.td}>{w.check_in}</td>
+                <td style={styles.td}>{w.check_out}</td>
+                <td style={styles.td}>{(w.seconds_worked / 3600).toFixed(2)}</td>
+                <td style={styles.td}>{w.tip_share.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* ACTIONS */}
+        <div style={styles.actions}>
+          <button onClick={onBack} style={styles.editButton}>
+            ← Edit
+          </button>
+
+          <button
+            onClick={onSave}
+            style={styles.saveButton}
+            disabled={saving || saved}
+          >
+            {saved ? "Saved ✓" : saving ? "Saving…" : "Save Shift"}
+          </button>
+        </div>
 
       </div>
     </div>
@@ -154,5 +147,33 @@ const styles = {
   td: {
     padding: "12px",
     borderBottom: "1px solid #e5e7eb",
+    textAlign: "center",
+  },
+
+  actions: {
+    display: "flex",
+    gap: "12px",
+    marginTop: "24px",
+  },
+
+  editButton: {
+    flex: 1,
+    padding: "14px",
+    borderRadius: "10px",
+    border: "1px solid #ddd",
+    backgroundColor: "white",
+    cursor: "pointer",
+    fontSize: "15px",
+  },
+
+  saveButton: {
+    flex: 1,
+    padding: "14px",
+    borderRadius: "10px",
+    border: "none",
+    backgroundColor: "#111827",
+    color: "white",
+    cursor: "pointer",
+    fontSize: "15px",
   },
 };
