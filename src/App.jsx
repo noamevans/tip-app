@@ -211,20 +211,12 @@ function App() {
         <div style={styles.header}>
           <h1 style={styles.title}>מחשב טיפים</h1>
 
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button
-              style={styles.reportsButton}
-              onClick={() => setPage("manageWorkers")}
-            >
-              עובדים
-            </button>
-            <button
-              style={styles.reportsButton}
-              onClick={() => setPage("createDoc")}
-            >
-              דוח לענת
-            </button>
-          </div>
+          <button
+            style={styles.reportsButton}
+            onClick={() => setPage("createDoc")}
+          >
+            דוח לענת
+          </button>
         </div>
 
         {/* SHIFT */}
@@ -258,7 +250,10 @@ function App() {
 
         {/* WORKERS */}
         <div style={styles.section}>
-          <label style={styles.label}>צוות:</label>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+            <label style={{ ...styles.label, marginBottom: 0 }}>צוות:</label>
+            <button style={styles.pencilChip} onClick={() => setPage("manageWorkers")}>✏️</button>
+          </div>
 
           <select
             value=""
@@ -428,6 +423,16 @@ const styles = {
     backgroundColor: "#111827",
     color: "white",
     cursor: "pointer",
+  },
+
+  pencilChip: {
+    padding: "2px 8px",
+    borderRadius: "999px",
+    border: "1px solid #e5e7eb",
+    backgroundColor: "white",
+    cursor: "pointer",
+    fontSize: "14px",
+    lineHeight: "1.4",
   },
 
   section: { marginBottom: "25px" },
