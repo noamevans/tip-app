@@ -86,8 +86,3 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
-
-input[type="date"]::-webkit-datetime-edit-year-field,
-input[type="date"]::-webkit-datetime-edit-text:last-of-type {
-  display: none;
-}
