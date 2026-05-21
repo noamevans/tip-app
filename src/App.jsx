@@ -250,7 +250,7 @@ function App() {
           <div style={styles.modal}>
 
             <h2>
-              {editIndex !== null ? "ערוך עובד" : "הוסף עובד"}
+              {workers.find((w) => w.id === selectedWorker)?.full_name ?? selectedWorker}
             </h2>
 
             <label style={styles.label}>כניסה</label>
@@ -331,7 +331,6 @@ const styles = {
     padding: "clamp(16px, 5vw, 30px)",
     borderRadius: "16px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    textAlign: "left",
   },
 
   header: {
