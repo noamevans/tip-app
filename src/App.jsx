@@ -296,7 +296,7 @@ function App() {
                   setShowModal(true);
                 }}
               >
-                {w.name}{w.strict_pay != null ? ` (₪${w.strict_pay}/ש)` : ""}
+                {w.name}{w.strict_pay != null ? ` (₪${w.strict_pay}/ש)` : ""}{w.finish < w.start ? " +1" : ""}
               </div>
             ))}
           </div>
