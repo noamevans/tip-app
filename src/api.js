@@ -63,6 +63,31 @@ export async function deleteWorker(id) {
   if (!res.ok) throw new Error('שגיאה במחיקת עובד')
 }
 
+export async function getShifts() {
+  const res = await fetch(`${BASE}/shifts`, { headers: h() })
+  if (!res.ok) throw new Error('שגיאה בטעינת משמרות')
+  return res.json()
+}
+
+export async function getShift(id) {
+  const res = await fetch(`${BASE}/shifts/${id}`, { headers: h() })
+  if (!res.ok) throw new Error('שגיאה בטעינת המשמרת')
+  return res.json()
+}
+
+export async function updateShift(id, body) {
+  const res = await fetch(`${BASE}/shifts/${id}`, {
+    method: 'PUT',
+    headers: h(),
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error ?? 'שגיאה בעדכון המשמרת')
+  }
+  return res.json()
+}
+
 export async function createShift(body) {
   const res = await fetch(`${BASE}/shifts`, {
     method: 'POST',

@@ -1,19 +1,22 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import Reports from "./Reports";
-import { getWorkers, previewShift, createShift } from "./api";
+import { getWorkers, getShifts, getShift, previewShift, createShift, updateShift } from "./api";
 
 const CreateDoc = lazy(() => import("./CreateDoc"));
 const ManageWorkers = lazy(() => import("./ManageWorkers"));
 
+const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7);
+const fmtPeriod = (p) => p === 'morning' ? 'בוקר' : 'ערב';
+const getYesterday = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
 
 function App() {
   const [page, setPage] = useState("home");
 
-  const [shiftDate, setShiftDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 1);
-    return d.toISOString().slice(0, 10);
-  });
+  const [shiftDate, setShiftDate] = useState(getYesterday);
   const [shiftType, setShiftType] = useState("Morning");
 
   const [showModal, setShowModal] = useState(false);
@@ -36,15 +39,48 @@ function App() {
   const [workersLoading, setWorkersLoading] = useState(true);
   const [workersError, setWorkersError] = useState(null);
 
+  const [shifts, setShifts] = useState([]);
+  const [editingShiftId, setEditingShiftId] = useState(null);
+
   useEffect(() => {
     getWorkers()
       .then(setWorkers)
       .catch((err) => setWorkersError(err.message))
       .finally(() => setWorkersLoading(false));
+    getShifts()
+      .then(setShifts)
+      .catch(() => {});
   }, []);
 
   const defaultHours = (type) =>
     type === "Morning" ? { start: "11:00", finish: "17:00" } : { start: "17:00", finish: "23:00" };
+
+  const handleLoadShift = async (shift) => {
+    try {
+      const detail = await getShift(shift.id);
+      setEditingShiftId(shift.id);
+      setShiftDate(detail.shift_date);
+      setShiftType(detail.period === 'morning' ? 'Morning' : 'Evening');
+      setTipAmount(String(detail.total_tip_amount));
+      setWorkersList(detail.workers.map((w) => ({
+        worker_id: w.worker_id,
+        name: w.full_name,
+        start: w.check_in,
+        finish: w.check_out,
+        strict_pay: workers.find((wr) => wr.id === w.worker_id)?.strict_pay ?? null,
+      })));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleClearEdit = () => {
+    setEditingShiftId(null);
+    setShiftDate(getYesterday());
+    setShiftType("Morning");
+    setWorkersList([]);
+    setTipAmount("");
+  };
 
   const saveWorker = () => {
     if (!selectedWorker || !startHour || !finishHour) {
@@ -114,8 +150,22 @@ function App() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await createShift(shiftBody);
-      setShiftDate("");
+      if (editingShiftId) {
+        await updateShift(editingShiftId, shiftBody);
+        setShifts((prev) => prev.map((s) =>
+          s.id === editingShiftId
+            ? { ...s, shift_date: shiftBody.shift_date, period: shiftBody.period, total_tip_amount: shiftBody.total_tip_amount }
+            : s
+        ));
+        setEditingShiftId(null);
+      } else {
+        const result = await createShift(shiftBody);
+        setShifts((prev) => [
+          { id: result.id, shift_date: shiftBody.shift_date, period: shiftBody.period, total_tip_amount: shiftBody.total_tip_amount },
+          ...prev,
+        ]);
+      }
+      setShiftDate(getYesterday());
       setShiftType("Morning");
       setWorkersList([]);
       setTipAmount("");
@@ -179,6 +229,31 @@ function App() {
             </button>
           </div>
         </div>
+
+        {/* RECENT SHIFTS */}
+        {shifts.length > 0 && (
+          <div style={styles.recentSection}>
+            <div style={styles.recentScroll}>
+              {editingShiftId && (
+                <div style={styles.newChip} onClick={handleClearEdit}>
+                  + חדש
+                </div>
+              )}
+              {shifts.map((s) => (
+                <div
+                  key={s.id}
+                  style={{
+                    ...styles.recentChip,
+                    ...(editingShiftId === s.id ? styles.recentChipActive : {}),
+                  }}
+                  onClick={() => handleLoadShift(s)}
+                >
+                  {fmtDate(s.shift_date)} {fmtPeriod(s.period)}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* SHIFT */}
         <div style={styles.section}>
@@ -310,11 +385,7 @@ function App() {
               <button
                 style={styles.deleteButton}
                 onClick={() => {
-                  const updated = workersList.filter(
-                    (_, i) => i !== editIndex
-                  );
-                  setWorkersList(updated);
-
+                  setWorkersList(workersList.filter((_, i) => i !== editIndex));
                   setShowModal(false);
                   setEditIndex(null);
                   setSelectedWorker("");
@@ -369,7 +440,7 @@ const styles = {
   header: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: "30px",
+    marginBottom: "20px",
   },
 
   title: {
@@ -385,6 +456,44 @@ const styles = {
     backgroundColor: "#111827",
     color: "white",
     cursor: "pointer",
+  },
+
+  recentSection: {
+    marginBottom: "20px",
+  },
+
+  recentScroll: {
+    display: "flex",
+    gap: "8px",
+    overflowX: "auto",
+    paddingBottom: "4px",
+  },
+
+  recentChip: {
+    flexShrink: 0,
+    padding: "6px 12px",
+    borderRadius: "999px",
+    backgroundColor: "#e5e7eb",
+    fontSize: "13px",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+  },
+
+  recentChipActive: {
+    backgroundColor: "#111827",
+    color: "white",
+  },
+
+  newChip: {
+    flexShrink: 0,
+    padding: "6px 12px",
+    borderRadius: "999px",
+    backgroundColor: "#d1fae5",
+    color: "#065f46",
+    fontSize: "13px",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    fontWeight: "600",
   },
 
   section: { marginBottom: "25px" },
@@ -477,7 +586,6 @@ const styles = {
     border: "none",
     cursor: "pointer",
   },
-
 };
 
 export default App;
