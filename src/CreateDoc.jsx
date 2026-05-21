@@ -49,7 +49,7 @@ function CreateDoc({ onBack }) {
       <div style={styles.card}>
 
         <div style={styles.header}>
-          <h1 style={styles.title}>דוח חודשי</h1>
+          <h1 style={styles.title}>דוח לענת</h1>
           <button onClick={onBack} style={styles.backButton}>חזור →</button>
         </div>
 
