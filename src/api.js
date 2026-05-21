@@ -1,4 +1,4 @@
-const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
+const BASE = `${import.meta.env.VITE_PUBLICSUPABASE_URL}/functions/v1`
 const KEY  = import.meta.env.VITE_PUBLICSUPABASE_ANON_KEY
 
 const h = () => ({
