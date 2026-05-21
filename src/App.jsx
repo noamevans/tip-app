@@ -226,7 +226,7 @@ function App() {
                   setShowModal(true);
                 }}
               >
-                {w.name}{w.strict_pay != null ? ` (₪${w.strict_pay})` : ""}
+                {w.name}{w.strict_pay != null ? ` (₪${w.strict_pay}/ש)` : ""}
               </div>
             ))}
           </div>
@@ -274,7 +274,7 @@ function App() {
               style={styles.input}
             />
 
-            <label style={styles.label}>תשלום קבוע ₪ (אופציונלי)</label>
+            <label style={styles.label}>תעריף קבוע ₪/שעה (אופציונלי)</label>
             <input
               type="number"
               value={strictPay}
