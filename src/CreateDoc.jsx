@@ -1,25 +1,15 @@
-import { useState, useEffect } from "react";
-import { getWorkers, getWorkerReport } from "./api";
+import { useState } from "react";
+import { getWorkerReport } from "./api";
 import { downloadWorkerReportPdf } from "./utils/pdf";
 
 const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
 
-function CreateDoc({ onBack }) {
+function CreateDoc({ onBack, workers = [], workersLoading = false }) {
   const [worker, setWorker] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [untilDate, setUntilDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
-
-  const [workers, setWorkers] = useState([]);
-  const [workersLoading, setWorkersLoading] = useState(true);
-
-  useEffect(() => {
-    getWorkers()
-      .then(setWorkers)
-      .catch(() => {})
-      .finally(() => setWorkersLoading(false));
-  }, []);
 
   const handleGenerate = async () => {
     if (!worker || !fromDate || !untilDate) {

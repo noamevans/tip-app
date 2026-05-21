@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Reports from "./Reports";
-import CreateDoc from "./CreateDoc";
 import { getWorkers, previewShift, createShift } from "./api";
+
+const CreateDoc = lazy(() => import("./CreateDoc"));
 
 
 function App() {
@@ -133,7 +134,11 @@ function App() {
   }
 
   if (page === "createDoc") {
-    return <CreateDoc onBack={() => setPage("home")} />;
+    return (
+      <Suspense fallback={null}>
+        <CreateDoc onBack={() => setPage("home")} workers={workers} workersLoading={workersLoading} />
+      </Suspense>
+    );
   }
 
   return (

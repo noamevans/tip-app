@@ -1,6 +1,3 @@
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
-
 const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
 
 const TH = 'padding:12px;text-align:center;font-weight:600;'
@@ -22,6 +19,10 @@ function mount(html) {
 }
 
 async function toPdf(el, filename) {
+  const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+    import('jspdf'),
+    import('html2canvas'),
+  ])
   await document.fonts.ready
   const canvas = await html2canvas(el, { scale: 2, logging: false })
   document.body.removeChild(el)
