@@ -21,7 +21,6 @@ function App() {
   const [selectedWorker, setSelectedWorker] = useState("");
   const [startHour, setStartHour] = useState("");
   const [finishHour, setFinishHour] = useState("");
-  const [strictPay, setStrictPay] = useState("");
 
   const [workersList, setWorkersList] = useState([]);
   const [tipAmount, setTipAmount] = useState("");
@@ -59,7 +58,7 @@ function App() {
       name: workerObj?.full_name ?? selectedWorker,
       start: startHour,
       finish: finishHour,
-      strict_pay: strictPay !== "" ? Number(strictPay) : null,
+      strict_pay: workerObj?.strict_pay ?? null,
     };
 
     if (editIndex !== null) {
@@ -74,7 +73,6 @@ function App() {
     setSelectedWorker("");
     setStartHour("");
     setFinishHour("");
-    setStrictPay("");
     setShowModal(false);
   };
 
@@ -305,15 +303,6 @@ function App() {
               style={styles.input}
             />
 
-            <label style={styles.label}>תעריף קבוע ₪/שעה (אופציונלי)</label>
-            <input
-              type="number"
-              value={strictPay}
-              onChange={(e) => setStrictPay(e.target.value)}
-              style={styles.input}
-              placeholder="השאר ריק לחלוקה יחסית"
-            />
-
             <button style={styles.button} onClick={saveWorker}>
               שמור
             </button>
@@ -332,7 +321,6 @@ function App() {
                   setSelectedWorker("");
                   setStartHour("");
                   setFinishHour("");
-                  setStrictPay("");
                 }}
               >
                 מחק עובד
@@ -347,7 +335,6 @@ function App() {
                 setSelectedWorker("");
                 setStartHour("");
                 setFinishHour("");
-                setStrictPay("");
               }}
             >
               ביטול

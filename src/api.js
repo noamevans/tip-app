@@ -38,13 +38,23 @@ export async function getWorkerReport(workerId, from, to) {
   return res.json()
 }
 
-export async function createWorker(fullName) {
+export async function createWorker(fullName, strictPay = null) {
   const res = await fetch(`${BASE}/workers`, {
     method: 'POST',
     headers: h(),
-    body: JSON.stringify({ full_name: fullName }),
+    body: JSON.stringify({ full_name: fullName, strict_pay: strictPay }),
   })
   if (!res.ok) throw new Error('שגיאה בהוספת עובד')
+  return res.json()
+}
+
+export async function updateWorker(id, fullName, strictPay = null) {
+  const res = await fetch(`${BASE}/workers/${id}`, {
+    method: 'PUT',
+    headers: h(),
+    body: JSON.stringify({ full_name: fullName, strict_pay: strictPay }),
+  })
+  if (!res.ok) throw new Error('שגיאה בעדכון עובד')
   return res.json()
 }
 
