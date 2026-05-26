@@ -26,7 +26,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
 
           <div style={styles.summaryBox}>
             <h2>תעריף לשעה</h2>
-            <p>{hourlyRate.toFixed(2)}</p>
+            <p>{Math.round(hourlyRate)}</p>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
                 <td style={styles.td}>{w.check_in}</td>
                 <td style={styles.td}>{w.check_out}</td>
                 <td style={styles.td}>{(w.hours_worked).toFixed(2)}</td>
-                <td style={styles.td}>{w.tip_share.toFixed(2)}</td>
+                <td style={styles.td}>{Math.round(w.tip_share)}</td>
               </tr>
             ))}
           </tbody>
