@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { supabase } from "./supabase";
 import LoginScreen from "./LoginScreen";
@@ -72,6 +72,13 @@ function App() {
   const [editingShiftId, setEditingShiftId] = useState(null);
 
   const isManager = profile?.role === "manager";
+  const hoursInputRef = useRef(null);
+
+  useEffect(() => {
+    if (!showModal) return;
+    const t = setTimeout(() => hoursInputRef.current?.focus(), 100);
+    return () => clearTimeout(t);
+  }, [showModal]);
 
   useEffect(() => {
     if (!profile) return;
@@ -400,7 +407,7 @@ function App() {
               onChange={(e) => setHoursInput(e.target.value)}
               placeholder="0"
               style={{ ...styles.input, fontSize: "2rem", textAlign: "center", height: "80px" }}
-              autoFocus
+              ref={hoursInputRef}
             />
 
             <button style={styles.button} onClick={saveWorker}>
