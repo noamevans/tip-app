@@ -400,7 +400,6 @@ function App() {
               onChange={(e) => setHoursInput(e.target.value)}
               placeholder="0"
               style={{ ...styles.input, fontSize: "2rem", textAlign: "center", height: "80px" }}
-              autoFocus
             />
 
             <button style={styles.button} onClick={saveWorker}>
