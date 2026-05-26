@@ -21,8 +21,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
 
   const [selectedWorker, setSelectedWorker] = useState("");
-  const [hoursVal, setHoursVal] = useState("6");
-  const [minutesVal, setMinutesVal] = useState("0");
+  const [hoursInput, setHoursInput] = useState("");
 
   const [workersList, setWorkersList] = useState([]);
   const [tipAmount, setTipAmount] = useState("");
@@ -82,7 +81,7 @@ function App() {
       return;
     }
 
-    const total_hours = parseInt(hoursVal) + parseInt(minutesVal) / 60;
+    const total_hours = parseFloat(hoursInput);
     if (!total_hours || total_hours <= 0) {
       alert("שעות עבודה חייבות להיות גדולות מ-0");
       return;
@@ -105,8 +104,7 @@ function App() {
     }
 
     setSelectedWorker("");
-    setHoursVal("6");
-    setMinutesVal("0");
+    setHoursInput("");
     setShowModal(false);
   };
 
@@ -269,8 +267,7 @@ function App() {
             onChange={(e) => {
               setSelectedWorker(e.target.value);
               setEditIndex(null);
-              setHoursVal("6");
-              setMinutesVal("0");
+              setHoursInput("");
               setShowModal(true);
             }}
             style={styles.input}
@@ -297,10 +294,8 @@ function App() {
                 key={i}
                 style={styles.tag}
                 onClick={() => {
-                  const th = w.total_hours || 0;
                   setSelectedWorker(w.worker_id);
-                  setHoursVal(String(Math.floor(th)));
-                  setMinutesVal(String(Math.round((th % 1) * 60)));
+                  setHoursInput(String(w.total_hours || ""));
                   setEditIndex(i);
                   setShowModal(true);
                 }}
@@ -338,26 +333,15 @@ function App() {
             </h2>
 
             <label style={styles.label}>שעות עבודה</label>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <select
-                value={minutesVal}
-                onChange={(e) => setMinutesVal(e.target.value)}
-                style={{ ...styles.input, flex: 1 }}
-              >
-                {["0", "15", "30", "45"].map((m) => (
-                  <option key={m} value={m}>{m.padStart(2, "0")}</option>
-                ))}
-              </select>
-              <select
-                value={hoursVal}
-                onChange={(e) => setHoursVal(e.target.value)}
-                style={{ ...styles.input, flex: 1 }}
-              >
-                {Array.from({ length: 15 }, (_, i) => (
-                  <option key={i} value={String(i)}>{i}</option>
-                ))}
-              </select>
-            </div>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={hoursInput}
+              onChange={(e) => setHoursInput(e.target.value)}
+              placeholder="0"
+              style={{ ...styles.input, fontSize: "2rem", textAlign: "center", height: "80px" }}
+              autoFocus
+            />
 
             <button style={styles.button} onClick={saveWorker}>
               שמור
@@ -371,8 +355,7 @@ function App() {
                   setShowModal(false);
                   setEditIndex(null);
                   setSelectedWorker("");
-                  setHoursVal("6");
-                  setMinutesVal("0");
+                  setHoursInput("");
                 }}
               >
                 מחק עובד
@@ -385,8 +368,7 @@ function App() {
                 setShowModal(false);
                 setEditIndex(null);
                 setSelectedWorker("");
-                setHoursVal("6");
-                setMinutesVal("0");
+                setHoursInput("");
               }}
             >
               ביטול
