@@ -3,8 +3,8 @@ import { downloadShiftReportPdf } from "./utils/pdf";
 const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
 
 function Reports({ shiftReport, onBack, onSave, saving, saved }) {
-  const { shift_date, period, total_tip_amount, total_hours, workers } = shiftReport;
-  const hourlyRate = total_hours ? total_tip_amount / total_hours : 0;
+  const { shift_date, period, total_tip_amount, total_hours, tip_rate, workers } = shiftReport;
+  const hourlyRate = tip_rate ?? 0;
 
   return (
     <div style={styles.page}>
@@ -36,8 +36,6 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
           <thead>
             <tr>
               <th style={styles.th}>שם</th>
-              <th style={styles.th}>כניסה</th>
-              <th style={styles.th}>יציאה</th>
               <th style={styles.th}>שעות</th>
               <th style={styles.th}>רווח</th>
             </tr>
@@ -52,8 +50,6 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
                 }}
               >
                 <td style={styles.td}>{w.full_name}</td>
-                <td style={styles.td}>{w.check_in}</td>
-                <td style={styles.td}>{w.check_out}</td>
                 <td style={styles.td}>{(w.hours_worked).toFixed(2)}</td>
                 <td style={styles.td}>{Math.round(w.tip_share)}</td>
               </tr>
