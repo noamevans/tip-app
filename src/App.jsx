@@ -1,5 +1,8 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { supabase } from "./supabase";
+import LoginScreen from "./LoginScreen";
+import PendingScreen from "./PendingScreen";
 import Reports from "./Reports";
 import { getWorkers, getShifts, getShift, previewShift, createShift, updateShift } from "./api";
 
@@ -13,6 +16,34 @@ const getYesterday = () => {
 };
 
 function App() {
+  // ── Auth state ─────────────────────────────────────────────
+  const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSession(session);
+      if (!session) setProfile(null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    supabase
+      .from("profiles")
+      .select("role, worker_id")
+      .eq("id", session.user.id)
+      .single()
+      .then(({ data }) => setProfile(data));
+  }, [session]);
+
+  // ── App state ──────────────────────────────────────────────
   const [page, setPage] = useState("home");
 
   const [shiftDate, setShiftDate] = useState(getYesterday);
@@ -40,7 +71,10 @@ function App() {
   const [shifts, setShifts] = useState([]);
   const [editingShiftId, setEditingShiftId] = useState(null);
 
+  const isManager = profile?.role === "manager";
+
   useEffect(() => {
+    if (!profile) return;
     getWorkers()
       .then(setWorkers)
       .catch((err) => setWorkersError(err.message))
@@ -48,7 +82,7 @@ function App() {
     getShifts()
       .then(setShifts)
       .catch(() => {});
-  }, []);
+  }, [profile]);
 
   useEffect(() => {
     if (!shiftDate || shifts.length === 0) return;
@@ -173,6 +207,12 @@ function App() {
     }
   };
 
+  // ── Auth gates ─────────────────────────────────────────────
+  if (authLoading) return null;
+  if (!session) return <LoginScreen />;
+  if (!profile || profile.role === "pending") return <PendingScreen session={session} />;
+
+  // ── Pages ──────────────────────────────────────────────────
   if (page === "reports") {
     return (
       <>
@@ -192,7 +232,12 @@ function App() {
     return (
       <>
         <Suspense fallback={null}>
-          <CreateDoc onBack={() => setPage("home")} workers={workers} workersLoading={workersLoading} />
+          <CreateDoc
+            onBack={() => setPage("home")}
+            workers={workers}
+            workersLoading={workersLoading}
+            profile={profile}
+          />
         </Suspense>
         <SpeedInsights />
       </>
@@ -203,7 +248,12 @@ function App() {
     return (
       <>
         <Suspense fallback={null}>
-          <ManageWorkers onBack={() => setPage("home")} workers={workers} setWorkers={setWorkers} />
+          <ManageWorkers
+            onBack={() => setPage("home")}
+            workers={workers}
+            setWorkers={setWorkers}
+            profile={profile}
+          />
         </Suspense>
         <SpeedInsights />
       </>
@@ -218,12 +268,20 @@ function App() {
         <div style={styles.header}>
           <h1 style={styles.title}>מחשב טיפים</h1>
 
-          <button
-            style={styles.reportsButton}
-            onClick={() => setPage("createDoc")}
-          >
-            דוח לענת
-          </button>
+          <div style={styles.headerActions}>
+            <button
+              style={styles.reportsButton}
+              onClick={() => setPage("createDoc")}
+            >
+              דוח לענת
+            </button>
+            <button
+              style={styles.signOutButton}
+              onClick={() => supabase.auth.signOut()}
+            >
+              התנתק
+            </button>
+          </div>
         </div>
 
         {/* SHIFT */}
@@ -259,7 +317,9 @@ function App() {
         <div style={styles.section}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
             <label style={{ ...styles.label, marginBottom: 0 }}>צוות:</label>
-            <button style={styles.pencilChip} onClick={() => setPage("manageWorkers")}>✏️</button>
+            {isManager && (
+              <button style={styles.pencilChip} onClick={() => setPage("manageWorkers")}>✏️</button>
+            )}
           </div>
 
           <select
@@ -405,12 +465,19 @@ const styles = {
   header: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: "20px",
   },
 
   title: {
     fontSize: "22px",
     fontWeight: "700",
+  },
+
+  headerActions: {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
   },
 
   reportsButton: {
@@ -421,6 +488,17 @@ const styles = {
     backgroundColor: "#111827",
     color: "white",
     cursor: "pointer",
+  },
+
+  signOutButton: {
+    padding: "10px 12px",
+    minHeight: "44px",
+    borderRadius: "8px",
+    border: "1px solid #e5e7eb",
+    backgroundColor: "white",
+    color: "#374151",
+    cursor: "pointer",
+    fontSize: "13px",
   },
 
   pencilChip: {

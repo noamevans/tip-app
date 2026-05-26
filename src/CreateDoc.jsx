@@ -4,8 +4,9 @@ import { downloadWorkerReportPdf } from "./utils/pdf";
 
 const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
 
-function CreateDoc({ onBack, workers = [], workersLoading = false }) {
-  const [worker, setWorker] = useState("");
+function CreateDoc({ onBack, workers = [], workersLoading = false, profile }) {
+  const isWorker = profile?.role === 'worker'
+  const [worker, setWorker] = useState(isWorker ? (profile?.worker_id ?? '') : '')
   const [fromDate, setFromDate] = useState("");
   const [untilDate, setUntilDate] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,6 +34,7 @@ function CreateDoc({ onBack, workers = [], workersLoading = false }) {
   };
 
   const hasRows = reportData && reportData.rows.length > 0;
+  const workerName = workers.find((w) => w.id === worker)?.full_name ?? '';
 
   return (
     <div style={styles.page}>
@@ -44,17 +46,21 @@ function CreateDoc({ onBack, workers = [], workersLoading = false }) {
         </div>
 
         <label style={styles.label}>עובד:</label>
-        <select
-          value={worker}
-          onChange={(e) => setWorker(e.target.value)}
-          style={styles.input}
-          disabled={workersLoading}
-        >
-          <option value="">{workersLoading ? "טוען…" : "בחר עובד"}</option>
-          {workers.map((w) => (
-            <option key={w.id} value={w.id}>{w.full_name}</option>
-          ))}
-        </select>
+        {isWorker ? (
+          <p style={styles.lockedWorker}>{workerName || '…'}</p>
+        ) : (
+          <select
+            value={worker}
+            onChange={(e) => setWorker(e.target.value)}
+            style={styles.input}
+            disabled={workersLoading}
+          >
+            <option value="">{workersLoading ? "טוען…" : "בחר עובד"}</option>
+            {workers.map((w) => (
+              <option key={w.id} value={w.id}>{w.full_name}</option>
+            ))}
+          </select>
+        )}
 
         <label style={styles.label}>מתאריך:</label>
         <input
@@ -113,10 +119,7 @@ function CreateDoc({ onBack, workers = [], workersLoading = false }) {
                 </div>
                 <button
                   style={styles.button}
-                  onClick={() => {
-                    const workerName = workers.find((w) => w.id === worker)?.full_name ?? worker;
-                    downloadWorkerReportPdf(workerName, fromDate, untilDate, reportData);
-                  }}
+                  onClick={() => downloadWorkerReportPdf(workerName, fromDate, untilDate, reportData)}
                 >
                   הורד PDF
                 </button>
@@ -185,6 +188,16 @@ const styles = {
     borderRadius: "8px",
     border: "1px solid #ccc",
     fontSize: "14px",
+  },
+
+  lockedWorker: {
+    padding: "12px",
+    borderRadius: "8px",
+    border: "1px solid #e5e7eb",
+    backgroundColor: "#f9fafb",
+    fontSize: "14px",
+    margin: 0,
+    color: "#374151",
   },
 
   button: {

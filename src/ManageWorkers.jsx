@@ -1,7 +1,34 @@
-import { useState } from "react";
-import { createWorker, updateWorker, deleteWorker } from "./api";
+import { useState, useEffect } from "react";
+import { createWorker, updateWorker, deleteWorker, getPendingUsers, approveUser } from "./api";
 
-function ManageWorkers({ onBack, workers, setWorkers }) {
+function ManageWorkers({ onBack, workers, setWorkers, profile }) {
+  const isManager = profile?.role === 'manager'
+
+  // ── Pending approvals (manager only) ──────────────────────
+  const [pending, setPending] = useState([]);
+  const [pendingWorkerSel, setPendingWorkerSel] = useState({});
+  const [approving, setApproving] = useState(new Set());
+
+  useEffect(() => {
+    if (!isManager) return;
+    getPendingUsers().then(setPending).catch(() => {});
+  }, [isManager]);
+
+  const handleApprove = async (userId) => {
+    const workerId = pendingWorkerSel[userId];
+    if (!workerId) { alert('נא לבחור עובד לשיוך'); return; }
+    setApproving((prev) => new Set(prev).add(userId));
+    try {
+      await approveUser(userId, workerId);
+      setPending((prev) => prev.filter((p) => p.id !== userId));
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setApproving((prev) => { const s = new Set(prev); s.delete(userId); return s; });
+    }
+  };
+
+  // ── Worker CRUD ────────────────────────────────────────────
   const [newName, setNewName] = useState("");
   const [newRate, setNewRate] = useState("");
   const [saving, setSaving] = useState(false);
@@ -70,6 +97,42 @@ function ManageWorkers({ onBack, workers, setWorkers }) {
           <button onClick={onBack} style={styles.backButton}>חזור →</button>
         </div>
 
+        {/* PENDING APPROVALS */}
+        {isManager && pending.length > 0 && (
+          <div style={styles.pendingSection}>
+            <h2 style={styles.pendingTitle}>ממתינים לאישור</h2>
+            {pending.map((p) => (
+              <div key={p.id} style={styles.pendingRow}>
+                <div style={styles.pendingInfo}>
+                  <span style={styles.pendingEmail}>{p.email}</span>
+                </div>
+                <div style={styles.pendingActions}>
+                  <select
+                    value={pendingWorkerSel[p.id] ?? ''}
+                    onChange={(e) => setPendingWorkerSel((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                    style={styles.pendingSelect}
+                    disabled={approving.has(p.id)}
+                  >
+                    <option value="">שייך עובד</option>
+                    {workers.map((w) => (
+                      <option key={w.id} value={w.id}>{w.full_name}</option>
+                    ))}
+                  </select>
+                  <button
+                    style={styles.approveButton}
+                    onClick={() => handleApprove(p.id)}
+                    disabled={approving.has(p.id) || !pendingWorkerSel[p.id]}
+                  >
+                    {approving.has(p.id) ? '…' : 'אשר'}
+                  </button>
+                </div>
+              </div>
+            ))}
+            <div style={styles.divider} />
+          </div>
+        )}
+
+        {/* WORKERS LIST */}
         <div style={styles.list}>
           {workers.length === 0 && (
             <p style={styles.empty}>אין עובדים עדיין.</p>
@@ -119,6 +182,7 @@ function ManageWorkers({ onBack, workers, setWorkers }) {
           )}
         </div>
 
+        {/* ADD WORKER */}
         <div style={styles.addSection}>
           <div style={styles.addRow}>
             <input
@@ -180,6 +244,61 @@ const styles = {
     border: "1px solid #ddd",
     backgroundColor: "white",
     cursor: "pointer",
+  },
+  pendingSection: {
+    marginBottom: "8px",
+  },
+  pendingTitle: {
+    fontSize: "15px",
+    fontWeight: "700",
+    margin: "0 0 12px",
+    color: "#111827",
+  },
+  pendingRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "10px 0",
+    gap: "10px",
+    borderBottom: "1px solid #f3f4f6",
+  },
+  pendingInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+  pendingEmail: {
+    fontSize: "13px",
+    color: "#374151",
+    display: "block",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  pendingActions: {
+    display: "flex",
+    gap: "8px",
+    flexShrink: 0,
+  },
+  pendingSelect: {
+    padding: "6px 8px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    fontSize: "13px",
+    maxWidth: "130px",
+  },
+  approveButton: {
+    padding: "6px 14px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#111827",
+    color: "white",
+    cursor: "pointer",
+    fontSize: "13px",
+    whiteSpace: "nowrap",
+  },
+  divider: {
+    borderTop: "2px solid #e5e7eb",
+    margin: "16px 0",
   },
   list: { marginBottom: "24px" },
   empty: { textAlign: "center", color: "#6b7280", padding: "20px 0" },
