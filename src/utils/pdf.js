@@ -80,18 +80,16 @@ export async function downloadShiftReportPdf(shiftReport) {
   const rows = shiftReport.workers.map((w, i) => `
     <tr style="background:${i % 2 === 0 ? '#fff' : '#f3f4f6'}">
       <td style="${TD}">${w.full_name}</td>
-      <td style="${TD}">${w.check_in}</td>
-      <td style="${TD}">${w.check_out}</td>
-      <td style="${TD}">${(w.seconds_worked / 3600).toFixed(2)}</td>
-      <td style="${TD}">${w.tip_share.toFixed(2)}</td>
+      <td style="${TD}">${w.hours_worked.toFixed(2)}</td>
+      <td style="${TD}">${Math.round(w.tip_share)}</td>
     </tr>`).join('')
 
   const el = mount(`
     <h2 style="font-size:20px;margin:0 0 6px;font-weight:700;">דוח משמרת — ${fmtDate(shiftReport.shift_date)} (${period})</h2>
-    <p style="color:#6b7280;margin:0 0 20px;font-size:13px;">סה"כ טיפים: ₪${shiftReport.total_tip_amount} &nbsp;&nbsp; סה"כ שעות: ${shiftReport.total_hours}</p>
+    <p style="color:#6b7280;margin:0 0 20px;font-size:13px;">סה"כ טיפים: ₪${shiftReport.total_tip_amount} &nbsp;&nbsp; סה"כ שעות: ${shiftReport.non_strict_hours ?? shiftReport.total_hours}</p>
     <table style="${TABLE}">
       <thead><tr style="${HEAD}">
-        <th style="${TH}">עובד</th><th style="${TH}">כניסה</th><th style="${TH}">יציאה</th>
+        <th style="${TH}">עובד</th>
         <th style="${TH}">שעות</th><th style="${TH}">חלק בטיפ (₪)</th>
       </tr></thead>
       <tbody>${rows}</tbody>

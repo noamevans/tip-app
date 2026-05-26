@@ -3,7 +3,7 @@ import { downloadShiftReportPdf } from "./utils/pdf";
 const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
 
 function Reports({ shiftReport, onBack, onSave, saving, saved }) {
-  const { shift_date, period, total_tip_amount, total_hours, tip_rate, workers } = shiftReport;
+  const { shift_date, period, total_tip_amount, non_strict_hours, tip_rate, workers } = shiftReport;
   const hourlyRate = tip_rate ?? 0;
 
   return (
@@ -21,7 +21,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
         <div style={styles.summary}>
           <div style={styles.summaryBox}>
             <h2>סה"כ שעות</h2>
-            <p>{total_hours.toFixed(2)}</p>
+            <p>{(non_strict_hours ?? 0).toFixed(2)}</p>
           </div>
 
           <div style={styles.summaryBox}>
