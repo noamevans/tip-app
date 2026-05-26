@@ -29,7 +29,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
 
           <div style={styles.summaryBox}>
             <h2>תעריף לשעה</h2>
-            <p>{Math.round(hourlyRate)}</p>
+            <p>{Math.floor(hourlyRate)}</p>
           </div>
         </div>
 
