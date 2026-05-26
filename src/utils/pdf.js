@@ -86,7 +86,7 @@ export async function downloadShiftReportPdf(shiftReport) {
 
   const el = mount(`
     <h2 style="font-size:20px;margin:0 0 6px;font-weight:700;">דוח משמרת — ${fmtDate(shiftReport.shift_date)} (${period})</h2>
-    <p style="color:#6b7280;margin:0 0 20px;font-size:13px;">סה"כ טיפים: ₪${shiftReport.total_tip_amount} &nbsp;&nbsp; סה"כ שעות: ${shiftReport.non_strict_hours ?? shiftReport.total_hours}</p>
+    <p style="color:#6b7280;margin:0 0 20px;font-size:13px;">סה"כ טיפים: ₪${shiftReport.total_tip_amount} &nbsp;&nbsp; סה"כ שעות: ${shiftReport.workers.filter(w => w.strict_pay == null).reduce((s, w) => s + w.hours_worked, 0).toFixed(2)}</p>
     <table style="${TABLE}">
       <thead><tr style="${HEAD}">
         <th style="${TH}">עובד</th>

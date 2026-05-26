@@ -3,8 +3,11 @@ import { downloadShiftReportPdf } from "./utils/pdf";
 const fmtDate = (d) => d.slice(8) + '/' + d.slice(5, 7)
 
 function Reports({ shiftReport, onBack, onSave, saving, saved }) {
-  const { shift_date, period, total_tip_amount, non_strict_hours, tip_rate, workers } = shiftReport;
-  const hourlyRate = tip_rate ?? 0;
+  const { shift_date, period, total_tip_amount, workers } = shiftReport;
+  const nonStrictWorkers = workers.filter(w => w.strict_pay == null);
+  const strictDeductions = workers.filter(w => w.strict_pay != null).reduce((sum, w) => sum + w.tip_share, 0);
+  const displayHours = nonStrictWorkers.reduce((sum, w) => sum + w.hours_worked, 0);
+  const hourlyRate = displayHours ? (total_tip_amount - strictDeductions) / displayHours : 0;
 
   return (
     <div style={styles.page}>
@@ -21,7 +24,7 @@ function Reports({ shiftReport, onBack, onSave, saving, saved }) {
         <div style={styles.summary}>
           <div style={styles.summaryBox}>
             <h2>סה"כ שעות</h2>
-            <p>{(non_strict_hours ?? 0).toFixed(2)}</p>
+            <p>{displayHours.toFixed(2)}</p>
           </div>
 
           <div style={styles.summaryBox}>
